@@ -1,7 +1,56 @@
 import streamlit as st
 import pandas as pd
 import psycopg2
+import re
 from app.db.connection import get_connection
+
+
+def is_valid_email(email):
+    pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+    return re.match(pattern, str(email)) is not None
+
+
+def validate_student_csv(df):
+    required_columns = [
+        "matric_no",
+        "full_name",
+        "email",
+        "department_id",
+        "programme",
+        "level"
+    ]
+
+    errors = []
+
+    if list(df.columns) != required_columns:
+        errors.append("CSV must have these columns: matric_no, full_name, email, department_id, programme, level")
+        return errors
+
+    allowed_levels = ["100", "200", "300", "400", "500"]
+
+    for index, row in df.iterrows():
+        row_number = index + 2
+
+        if row.isnull().any():
+            errors.append(f"Row {row_number}: Empty fields are not allowed.")
+
+        if not is_valid_email(row["email"]):
+            errors.append(f"Row {row_number}: Invalid email address.")
+
+        if str(row["level"]) not in allowed_levels:
+            errors.append(f"Row {row_number}: Level must be 100, 200, 300, 400, or 500.")
+
+    duplicated_matric = df[df["matric_no"].duplicated()]["matric_no"].tolist()
+
+    if duplicated_matric:
+        errors.append(f"Duplicate matric numbers found in CSV: {duplicated_matric}")
+
+    duplicated_email = df[df["email"].duplicated()]["email"].tolist()
+
+    if duplicated_email:
+        errors.append(f"Duplicate emails found in CSV: {duplicated_email}")
+
+    return errors
 
 
 def bulk_upload_students():
@@ -12,19 +61,15 @@ def bulk_upload_students():
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
 
-        required_columns = [
-            "matric_no",
-            "full_name",
-            "email",
-            "department_id",
-            "programme",
-            "level"
-        ]
+        validation_errors = validate_student_csv(df)
 
-        if list(df.columns) != required_columns:
-            st.error("CSV must have these columns: matric_no, full_name, email, department_id, programme, level")
+        if validation_errors:
+            st.error("CSV validation failed.")
+            for error in validation_errors:
+                st.write(f"- {error}")
             return
 
+        st.success("CSV validation passed.")
         st.write("Preview of uploaded file:")
         st.dataframe(df)
 
@@ -37,8 +82,8 @@ def bulk_upload_students():
                     cursor.execute(
                         """
                         INSERT INTO students
-                        (matric_no, full_name, email, department_id, programme, level)
-                        VALUES (%s, %s, %s, %s, %s, %s)
+                        (matric_no, full_name, email, department_id, programme, level, is_active)
+                        VALUES (%s, %s, %s, %s, %s, %s, TRUE)
                         """,
                         (
                             row["matric_no"],
@@ -55,7 +100,7 @@ def bulk_upload_students():
 
             except psycopg2.errors.UniqueViolation:
                 conn.rollback()
-                st.error("Upload failed. One or more students already exist.")
+                st.error("Upload failed. One or more students already exist in the database.")
 
             except Exception as e:
                 conn.rollback()
