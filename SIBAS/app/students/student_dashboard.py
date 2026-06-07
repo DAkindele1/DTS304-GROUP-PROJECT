@@ -3,6 +3,9 @@ import pandas as pd
 from app.db.connection import get_connection
 
 
+DEFAULT_ATTENDANCE_THRESHOLD = 80
+
+
 def student_dashboard(student_id):
     st.title("Student Dashboard")
 
@@ -45,10 +48,34 @@ def student_dashboard(student_id):
         attendance_df = pd.read_sql(attendance_query, conn, params=(student_id,))
 
         st.subheader("My Profile")
-        st.dataframe(profile_df)
+
+        if profile_df.empty:
+            st.warning("Profile not found.")
+        else:
+            st.dataframe(profile_df)
 
         st.subheader("My Attendance Records")
-        st.dataframe(attendance_df)
+
+        if attendance_df.empty:
+            st.info("No attendance records found.")
+        else:
+            attendance_df["eligibility_status"] = attendance_df["attendance_score"].apply(
+                lambda score: "ELIGIBLE" if score >= DEFAULT_ATTENDANCE_THRESHOLD else "INELIGIBLE"
+            )
+
+            st.dataframe(attendance_df)
+
+            st.subheader("Attendance Summary")
+
+            for _, row in attendance_df.iterrows():
+                course = row["course_code"]
+                score = row["attendance_score"]
+                status = row["eligibility_status"]
+
+                if status == "ELIGIBLE":
+                    st.success(f"{course}: {score}% - {status}")
+                else:
+                    st.error(f"{course}: {score}% - {status}")
 
     except Exception as e:
         st.error(f"Error loading student dashboard: {e}")
