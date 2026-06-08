@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from app.db.connection import get_connection
+from db.connection import get_connection
 
 
 DEFAULT_ATTENDANCE_THRESHOLD = 80
@@ -17,7 +17,7 @@ def student_dashboard(student_id):
                 matric_no,
                 full_name,
                 email,
-                programme,
+                course,
                 level
             FROM students
             WHERE student_id = %s
@@ -27,12 +27,12 @@ def student_dashboard(student_id):
             SELECT
                 c.course_code,
                 c.course_title,
-                COUNT(ar.attendance_record_id) AS total_sessions,
+                COUNT(ar.attendance_id) AS total_sessions,
                 SUM(CASE WHEN ar.status = 'Present' THEN 1 ELSE 0 END) AS sessions_present,
                 ROUND(
                     (
                         SUM(CASE WHEN ar.status = 'Present' THEN 1 ELSE 0 END)::numeric
-                        / NULLIF(COUNT(ar.attendance_record_id), 0)
+                        / NULLIF(COUNT(ar.attendance_id), 0)
                     ) * 100, 2
                 ) AS attendance_score
             FROM attendance_records ar
@@ -68,14 +68,14 @@ def student_dashboard(student_id):
             st.subheader("Attendance Summary")
 
             for _, row in attendance_df.iterrows():
-                course = row["course_code"]
+                course_code = row["course_code"]
                 score = row["attendance_score"]
                 status = row["eligibility_status"]
 
                 if status == "ELIGIBLE":
-                    st.success(f"{course}: {score}% - {status}")
+                    st.success(f"{course_code}: {score}% - {status}")
                 else:
-                    st.error(f"{course}: {score}% - {status}")
+                    st.error(f"{course_code}: {score}% - {status}")
 
     except Exception as e:
         st.error(f"Error loading student dashboard: {e}")

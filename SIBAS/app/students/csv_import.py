@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 import re
-from app.db.connection import get_connection
+from db.connection import get_connection
 
 
 def is_valid_email(email):
@@ -12,18 +12,21 @@ def is_valid_email(email):
 
 def validate_student_csv(df):
     required_columns = [
+        "user_id",
         "matric_no",
         "full_name",
         "email",
         "department_id",
-        "programme",
+        "course",
         "level"
     ]
 
     errors = []
 
     if list(df.columns) != required_columns:
-        errors.append("CSV must have these columns: matric_no, full_name, email, department_id, programme, level")
+        errors.append(
+            "CSV must have these columns: user_id, matric_no, full_name, email, department_id, course, level"
+        )
         return errors
 
     allowed_levels = ["100", "200", "300", "400", "500"]
@@ -56,6 +59,10 @@ def validate_student_csv(df):
 def bulk_upload_students():
     st.subheader("Bulk Upload Students")
 
+    st.warning(
+        "CSV upload currently requires user_id because Victoria's schema links students to users."
+    )
+
     uploaded_file = st.file_uploader("Upload Students CSV", type=["csv"])
 
     if uploaded_file is not None:
@@ -82,15 +89,16 @@ def bulk_upload_students():
                     cursor.execute(
                         """
                         INSERT INTO students
-                        (matric_no, full_name, email, department_id, programme, level, is_active)
-                        VALUES (%s, %s, %s, %s, %s, %s, TRUE)
+                        (user_id, matric_no, full_name, email, department_id, course, level)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)
                         """,
                         (
+                            int(row["user_id"]),
                             row["matric_no"],
                             row["full_name"],
                             row["email"],
                             int(row["department_id"]),
-                            row["programme"],
+                            row["course"],
                             str(row["level"])
                         )
                     )
