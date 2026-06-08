@@ -9,7 +9,7 @@ def get_db_connection():
         return psycopg2.connect(
             dbname="sibas_db",
             user="postgres",
-            password="your_secure_password",
+            password="Nnamo28",
             host="localhost",
             port="5432"
         )
