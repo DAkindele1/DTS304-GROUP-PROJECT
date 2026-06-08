@@ -1,9 +1,5 @@
 -- ============================================================
--- SIBAS - Sample Data Insertion Script (Cartoon Characters Edition)
--- ============================================================
--- Run order: sibas_schema.sql → sibas_indexes.sql → this file
--- ============================================================
-
+-- SIBAS - Sample Data Insertion Script
 
 -- ============================================================
 -- 1. ROLES (seeded in schema already)
@@ -28,8 +24,8 @@ INSERT INTO departments (department_name) VALUES
 
 -- Administrators (role_id = 1) — Gravity Falls
 INSERT INTO users (username, password, role_id) VALUES
-    ('admin_ford_pines',   'hashed_password_001', 1),
-    ('admin_grunkle_stan', 'hashed_password_002', 1);
+    ('admin_stanley_pines',   'hashed_password_001', 1),
+    ('admin_stanford_pines', 'hashed_password_002', 1);
 
 -- Lecturers (role_id = 2) — Owl House & Star vs Forces of Evil
 INSERT INTO users (username, password, role_id) VALUES
@@ -38,7 +34,6 @@ INSERT INTO users (username, password, role_id) VALUES
     ('lec_alador_blight',   'hashed_password_005', 2);   -- Owl House
 
 -- Students (role_id = 3)
--- Miraculous Ladybug
 INSERT INTO users (username, password, role_id) VALUES
     ('stu_marinette_dupain',   'hashed_password_006', 3),
     ('stu_adrien_agreste',     'hashed_password_007', 3),
@@ -46,13 +41,11 @@ INSERT INTO users (username, password, role_id) VALUES
     ('stu_nino_lahiffe',       'hashed_password_009', 3),
     ('stu_chloe_bourgeois',    'hashed_password_010', 3);
 
--- Gravity Falls
 INSERT INTO users (username, password, role_id) VALUES
     ('stu_dipper_pines',       'hashed_password_011', 3),
     ('stu_mabel_pines',        'hashed_password_012', 3),
     ('stu_wendy_corduroy',     'hashed_password_013', 3);
 
--- Equestria Girls
 INSERT INTO users (username, password, role_id) VALUES
     ('stu_twilight_sparkle',   'hashed_password_014', 3),
     ('stu_rainbow_dash',       'hashed_password_015', 3),
@@ -62,7 +55,6 @@ INSERT INTO users (username, password, role_id) VALUES
     ('stu_pinkie_pie',         'hashed_password_019', 3),
     ('stu_sunset_shimmer',     'hashed_password_020', 3);
 
--- Owl House
 INSERT INTO users (username, password, role_id) VALUES
     ('stu_luz_noceda',         'hashed_password_021', 3),
     ('stu_amity_blight',       'hashed_password_022', 3),
@@ -70,7 +62,6 @@ INSERT INTO users (username, password, role_id) VALUES
     ('stu_gus_porter',         'hashed_password_024', 3),
     ('stu_hunter',             'hashed_password_025', 3);
 
--- Star vs Forces of Evil
 INSERT INTO users (username, password, role_id) VALUES
     ('stu_star_butterfly',     'hashed_password_026', 3),
     ('stu_marco_diaz',         'hashed_password_027', 3),
@@ -80,11 +71,11 @@ INSERT INTO users (username, password, role_id) VALUES
 
 -- ============================================================
 -- 4. ADMINISTRATORS — Gravity Falls
--- user_id 1 = admin_ford_pines, 2 = admin_grunkle_stan
+-- user_id 1 = admin_stanley_pines, 2 = admin_stanford_pines
 -- ============================================================
 INSERT INTO administrators (user_id, full_name) VALUES
-    (1, 'Ford Pines'),
-    (2, 'Stanford "Grunkle Stan" Pines');
+    (1, 'Stanley Pines'),
+    (2, 'Stanford Pines');
 
 
 -- ============================================================
@@ -101,7 +92,7 @@ INSERT INTO lecturers (user_id, department_id, full_name, email) VALUES
 -- 6. STUDENTS
 -- ============================================================
 
--- Miraculous Ladybug (user_id 6–10) — Computer Science (dept 1)
+-- (user_id 6–10) — Computer Science (dept 1)
 INSERT INTO students (user_id, department_id, matric_no, full_name, email, course, level) VALUES
     (6,  1, '2023/CS/001', 'Marinette Dupain-Cheng', 'marinette.dupain@pau.edu.ng',  'Computer Science', 300),
     (7,  1, '2023/CS/002', 'Adrien Agreste',          'adrien.agreste@pau.edu.ng',    'Computer Science', 300),
@@ -109,13 +100,13 @@ INSERT INTO students (user_id, department_id, matric_no, full_name, email, cours
     (9,  1, '2023/CS/004', 'Nino Lahiffe',            'nino.lahiffe@pau.edu.ng',      'Computer Science', 300),
     (10, 2, '2023/FD/001', 'Chloe Bourgeois',         'chloe.bourgeois@pau.edu.ng',   'Fashion Design & Technology', 200);
 
--- Gravity Falls (user_id 11–13) — Environmental Science (dept 4)
+--(user_id 11–13) — Environmental Science (dept 4)
 INSERT INTO students (user_id, department_id, matric_no, full_name, email, course, level) VALUES
     (11, 4, '2023/ES/001', 'Dipper Pines',   'dipper.pines@pau.edu.ng',   'Environmental Science', 200),
     (12, 3, '2023/CA/001', 'Mabel Pines',    'mabel.pines@pau.edu.ng',    'Creative Arts',         200),
     (13, 4, '2023/ES/002', 'Wendy Corduroy', 'wendy.corduroy@pau.edu.ng', 'Environmental Science', 100);
 
--- Equestria Girls (user_id 14–20)
+-- (user_id 14–20)
 INSERT INTO students (user_id, department_id, matric_no, full_name, email, course, level) VALUES
     (14, 1, '2023/CS/005', 'Twilight Sparkle',  'twilight.sparkle@pau.edu.ng',  'Computer Science',            400),
     (15, 3, '2023/CA/002', 'Rainbow Dash',       'rainbow.dash@pau.edu.ng',      'Creative Arts',               300),
@@ -125,7 +116,7 @@ INSERT INTO students (user_id, department_id, matric_no, full_name, email, cours
     (19, 3, '2023/CA/003', 'Pinkie Pie',          'pinkie.pie@pau.edu.ng',        'Creative Arts',               200),
     (20, 1, '2023/CS/006', 'Sunset Shimmer',      'sunset.shimmer@pau.edu.ng',    'Computer Science',            400);
 
--- Owl House (user_id 21–25)
+-- (user_id 21–25)
 INSERT INTO students (user_id, department_id, matric_no, full_name, email, course, level) VALUES
     (21, 5, '2023/PM/002', 'Luz Noceda',    'luz.noceda@pau.edu.ng',    'Philosophy & Magic Studies', 200),
     (22, 1, '2023/CS/007', 'Amity Blight',  'amity.blight@pau.edu.ng',  'Computer Science',           300),
@@ -133,7 +124,7 @@ INSERT INTO students (user_id, department_id, matric_no, full_name, email, cours
     (24, 3, '2023/CA/004', 'Gus Porter',    'gus.porter@pau.edu.ng',    'Creative Arts',              200),
     (25, 1, '2023/CS/008', 'Hunter Wittebane', 'hunter.w@pau.edu.ng',   'Computer Science',           300);
 
--- Star vs Forces of Evil (user_id 26–29)
+--  (user_id 26–29)
 INSERT INTO students (user_id, department_id, matric_no, full_name, email, course, level) VALUES
     (26, 5, '2023/PM/003', 'Star Butterfly', 'star.butterfly@pau.edu.ng', 'Philosophy & Magic Studies', 300),
     (27, 1, '2023/CS/009', 'Marco Diaz',     'marco.diaz@pau.edu.ng',     'Computer Science',           300),
