@@ -16,9 +16,10 @@ def login_user(connection, username, password):
     Uses parameterized statements to absolutely eliminate SQL injection risk.
     """
     cursor = connection.cursor()
-    # Explicitly pull user parameters alongside their assigned role name
+    # Explicitly pull user parameters alongside their assigned role name.
+    # Note: Column is u.password matching the SIBAS schema.
     query = """
-        SELECT u.user_id, u.username, u.password_hash, r.role_name, u.is_active 
+        SELECT u.user_id, u.username, u.password, r.role_name, u.is_active 
         FROM users u
         JOIN roles r ON u.role_id = r.role_id
         WHERE u.username = %s;

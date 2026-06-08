@@ -17,43 +17,48 @@ def get_db_connection():
         st.error(f"Database Connection Failure: {e}")
         return None
 
-# Instantiate default state variables safely
-if 'authenticated' not in st.session_state:
-    st.session_state['authenticated'] = False
-if 'username' not in st.session_state:
-    st.session_state['username'] = None
-if 'role' not in st.session_state:
-    st.session_state['role'] = None
+def main():
+    """Main application entry point with proper Streamlit initialization."""
+    # Instantiate default state variables safely
+    if 'authenticated' not in st.session_state:
+        st.session_state['authenticated'] = False
+    if 'username' not in st.session_state:
+        st.session_state['username'] = None
+    if 'role' not in st.session_state:
+        st.session_state['role'] = None
 
-# Application Routing Engine
-if not st.session_state['authenticated']:
-    login_screen(get_db_connection)
-else:
-    # Sidebar Context Panel Layout
-    st.sidebar.markdown(f"### Welcome, **{st.session_state['username']}**")
-    st.sidebar.info(f"Designated Role: {st.session_state['role']}")
-    
-    # Conditional Navigation based on Role Capabilities (RBAC Engine)
-    options = ["Home Dashboard"]
-    
-    if st.session_state['role'] == 'Administrator':
-        options.append("Manage Users")
-        options.append("Student Registry")  # Raymond's module
-        options.append("System Audit Reports")  # David Akindele's module
-    elif st.session_state['role'] == 'Lecturer':
-        options.append("Attendance Roster Sessions")  # David Okenla's module
-    elif st.session_state['role'] == 'Student':
-        options.append("Personal Performance Tracking")  # Raymond's Dashboard
+    # Application Routing Engine
+    if not st.session_state['authenticated']:
+        login_screen(get_db_connection)
+    else:
+        # Sidebar Context Panel Layout
+        st.sidebar.markdown(f"### Welcome, **{st.session_state['username']}**")
+        st.sidebar.info(f"Designated Role: {st.session_state['role']}")
         
-    choice = st.sidebar.radio("Navigation Panel Menu", options)
-    
-    # Instantiate Logout Trigger Option 
-    if st.sidebar.button("Terminate Session (Sign Out)"):
-        logout_user()
+        # Conditional Navigation based on Role Capabilities (RBAC Engine)
+        options = ["Home Dashboard"]
+        
+        if st.session_state['role'] == 'Administrator':
+            options.append("Manage Users")
+            options.append("Student Registry")  # Raymond's module
+            options.append("System Audit Reports")  # David Akindele's module
+        elif st.session_state['role'] == 'Lecturer':
+            options.append("Attendance Roster Sessions")  # David Okenla's module
+        elif st.session_state['role'] == 'Student':
+            options.append("Personal Performance Tracking")  # Raymond's Dashboard
+            
+        choice = st.sidebar.radio("Navigation Panel Menu", options)
+        
+        # Instantiate Logout Trigger Option 
+        if st.sidebar.button("Terminate Session (Sign Out)"):
+            logout_user()
 
-    # Route Selected Action Target Block
-    if choice == "Home Dashboard":
-        st.write(f"Welcome to your dashboard view, {st.session_state['username']}!")
-    elif choice == "Manage Users":
-        render_user_management(get_db_connection)
-    # Remaining layout checks link cleanly into alternative developer modules...
+        # Route Selected Action Target Block
+        if choice == "Home Dashboard":
+            st.write(f"Welcome to your dashboard view, {st.session_state['username']}!")
+        elif choice == "Manage Users":
+            render_user_management(get_db_connection)
+        # Remaining layout checks link cleanly into alternative developer modules...
+
+if __name__ == "__main__":
+    main()

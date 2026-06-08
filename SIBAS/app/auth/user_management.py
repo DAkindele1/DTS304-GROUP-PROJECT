@@ -67,9 +67,9 @@ def render_user_management(get_connection_func):
                                 encrypted_hash = hash_password(new_password)
                                 target_role_id = role_mapping[selected_role]
                                 
-                                # Safe Parameterized Data Record Insertion
+                                # Safe Parameterized Data Record Insertion targeting the 'password' column
                                 cursor.execute(
-                                    "INSERT INTO users (username, password_hash, role_id, is_active) VALUES (%s, %s, %s, TRUE);",
+                                    "INSERT INTO users (username, password, role_id, is_active) VALUES (%s, %s, %s, TRUE);",
                                     (new_username.strip(), encrypted_hash, target_role_id)
                                 )
                                 conn.commit()
@@ -129,9 +129,10 @@ def render_user_management(get_connection_func):
                             
                             if updated_password.strip():
                                 rehashed_pw = hash_password(updated_password)
+                                # Targeting the 'password' column 
                                 update_query = """
                                     UPDATE users 
-                                    SET username = %s, password_hash = %s, role_id = %s, is_active = %s 
+                                    SET username = %s, password = %s, role_id = %s, is_active = %s 
                                     WHERE user_id = %s;
                                 """
                                 cursor.execute(update_query, (updated_username.strip(), rehashed_pw, target_new_role_id, active_flag, u_id))
