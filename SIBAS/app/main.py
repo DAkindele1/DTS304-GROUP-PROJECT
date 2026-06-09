@@ -4,6 +4,8 @@ from auth.authentication import login_screen, logout_user
 from auth.user_management import render_user_management
 from students.student_dashboard import student_dashboard
 from students.student_management import student_management_page
+from students.csv_import import bulk_upload_students
+from admin.dashboard import render_admin_dashboard
 
 
 # Secure Connection Method Wrapper passed dynamically to modules
@@ -50,8 +52,9 @@ def main():
         if st.session_state['role'] == 'Administrator':
             options.append("Admin Dashboard") 
             options.append("Manage Users")
-            options.append("Student Management")  # Raymond's module
-            options.append("System Audit Reports")  # David Akindele's module
+            options.append("Student Management")
+            options.append("System Audit Reports") 
+            options.append("Bulk Upload Students")  
         elif st.session_state['role'] == 'Lecturer':
             options.append("Attendance Roster Sessions")  # David Okenla's module
         elif st.session_state['role'] == 'Student':
@@ -70,6 +73,10 @@ def main():
             render_user_management(get_db_connection)
         elif choice == "Student Management":
             student_management_page()
+        elif choice == "Admin Dashboard":
+            render_admin_dashboard(get_db_connection)
+        elif choice == "Bulk Upload Students":
+            bulk_upload_students()
         # Remaining layout checks link cleanly into alternative developer modules...
 
 if __name__ == "__main__":
