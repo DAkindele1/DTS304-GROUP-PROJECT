@@ -21,8 +21,7 @@ Right-click `sibas_db` → **Query Tool**
 | Order | File | Purpose |
 |---|---|---|
 | 1 | `sibas_schema.sql` | Creates all tables and constraints |
-| 2 | `sibas_indexes.sql` | Creates indexes for query performance |
-| 3 | `sibas_sample_data.sql` | Inserts sample data |
-| 4 | `sibas_tests.sql` | Optional — runs database tests |
+| 2 | `sibas_sample_data.sql` | Inserts sample data |
+| 3 | `sibas_tests.sql` | Optional — runs database tests |
 
 For each file: open it in the Query Tool and press **F5** to run.
