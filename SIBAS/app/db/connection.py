@@ -6,9 +6,9 @@ def get_connection():
         return psycopg2.connect(
             dbname="sibas_db",
             user="postgres",
-            password="incorrect6307",
+            password="postgres",
             host="localhost",
-            port="5433"
+            port="5432"
         )
     except Exception as e:
         st.error(f"Database Connection Failure: {e}")

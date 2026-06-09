@@ -6,6 +6,7 @@ from students.student_dashboard import student_dashboard
 from students.student_management import student_management_page
 from students.csv_import import bulk_upload_students
 from admin.dashboard import render_admin_dashboard
+from attendance.attendance_management import attendance_page
 
 
 # Secure Connection Method Wrapper passed dynamically to modules
@@ -14,9 +15,9 @@ def get_db_connection():
         return psycopg2.connect(
             dbname="sibas_db",
             user="postgres",
-            password="incorrect6307",
+            password="postgres",
             host="localhost",
-            port="5433"
+            port="5432"
         )
     except Exception as e:
         st.error(f"Database Connection Failure: {e}")
@@ -77,6 +78,8 @@ def main():
             render_admin_dashboard(get_db_connection)
         elif choice == "Bulk Upload Students":
             bulk_upload_students()
+        elif choice == "Attendance Roster Sessions":
+            attendance_page()
         # Remaining layout checks link cleanly into alternative developer modules...
 
 if __name__ == "__main__":

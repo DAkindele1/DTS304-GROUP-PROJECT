@@ -12,9 +12,9 @@ def reset_sample_passwords():
         conn = psycopg2.connect(
             dbname="sibas_db",
             user="postgres",
-            password="incorrect6307", 
+            password="postgres", 
             host="localhost",
-            port="5433"
+            port="5432"
         )
         cursor = conn.cursor()
 
