@@ -2,6 +2,7 @@ import streamlit as st
 import psycopg2
 from auth.authentication import login_screen, logout_user
 from auth.user_management import render_user_management
+from admin.dashboard import render_admin_dashboard
 
 # Secure Connection Method Wrapper passed dynamically to modules
 def get_db_connection():
@@ -55,7 +56,10 @@ def main():
 
         # Route Selected Action Target Block
         if choice == "Home Dashboard":
-            st.write(f"Welcome to your dashboard view, {st.session_state['username']}!")
+            if st.session_state['role'] == 'Administrator':
+                render_admin_dashboard(get_db_connection)
+            else:
+                st.write(f"Welcome to your dashboard view, {st.session_state['username']}!")
         elif choice == "Manage Users":
             render_user_management(get_db_connection)
         # Remaining layout checks link cleanly into alternative developer modules...

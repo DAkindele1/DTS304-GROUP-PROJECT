@@ -1,0 +1,121 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                    SIBAS ADMIN DASHBOARD - QUICK GUIDE                          ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+✨ NEW FEATURE: Admin Dashboard is now live!
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+🚀 TO ACCESS THE DASHBOARD:
+
+1. Start the app:
+   streamlit run SIBAS/app/main.py
+
+2. Navigate to: http://localhost:8501
+
+3. Login as Admin:
+   Username: admin_ford_pines
+   Password: admin_password
+
+4. Click "Home Dashboard" in the navigation menu
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+📊 DASHBOARD FEATURES:
+
+┌─ KEY METRICS (Top Section) ────────────────────────────────────────────────────┐
+│                                                                                 │
+│  • Total Users      - All system users count                                   │
+│  • Total Students   - Enrolled student count                                   │
+│  • Total Lecturers  - Teaching staff count                                     │
+│  • Total Courses    - Available courses count                                  │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ SYSTEM OVERVIEW (Charts) ─────────────────────────────────────────────────────┐
+│                                                                                 │
+│  • User Distribution by Role                                                   │
+│    → Bar chart showing Administrators, Lecturers, and Students                 │
+│                                                                                 │
+│  • Students by Department                                                      │
+│    → Bar chart showing student spread across departments                       │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ ATTENDANCE SUMMARY (Table) ───────────────────────────────────────────────────┐
+│                                                                                 │
+│  Course Code | Sessions | Students | Present | Attendance %                    │
+│  ─────────────────────────────────────────────────────────────────────────     │
+│  Shows per-course attendance metrics with percentage tracking                  │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ PERSONNEL & ENROLLMENT (Tables) ──────────────────────────────────────────────┐
+│                                                                                 │
+│  • Lecturers & Their Courses                                                   │
+│    → Shows lecturer name, courses taught, and department                       │
+│                                                                                 │
+│  • Course Enrollment (Top 10)                                                  │
+│    → Shows which courses are most popular                                      │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ SYSTEM STATUS (Bottom Section) ───────────────────────────────────────────────┐
+│                                                                                 │
+│  • Active Users     - Count of enabled accounts                                │
+│  • Inactive Users   - Count of deactivated accounts                            │
+│  • Last Generated   - Timestamp of dashboard refresh                           │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+📁 IMPLEMENTATION DETAILS:
+
+  Location: SIBAS/app/admin/dashboard.py
+  Import:   from admin.dashboard import render_admin_dashboard
+  Lines:    ~200 lines of Streamlit + Pandas + PostgreSQL
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+🎯 ADMIN CAPABILITIES:
+
+  ✅ View system-wide metrics and statistics
+  ✅ Monitor user distribution and department breakdown
+  ✅ Track attendance rates per course
+  ✅ See lecturer workload and course assignments
+  ✅ Identify popular courses by enrollment
+  ✅ Monitor system health (active/inactive users)
+  ✅ Real-time data from PostgreSQL database
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+💡 USAGE TIPS:
+
+  • Dashboard refreshes with each interaction
+  • All data is pulled live from the database
+  • Charts are interactive (hover to see values)
+  • Tables can be sorted by clicking column headers
+  • Attendance percentages help identify problem areas
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+🔧 DATABASE QUERIES USED:
+
+  The dashboard executes 10 different SQL queries to gather:
+  - User counts and distributions
+  - Student and department data
+  - Attendance statistics
+  - Lecturer assignments
+  - Course enrollment numbers
+
+═══════════════════════════════════════════════════════════════════════════════════
+
+📋 REMAINING MODULES (To be implemented by team):
+
+  ⏳ Student Registry         → Raymond
+  ⏳ Attendance Roster        → David Okenla  
+  ⏳ System Audit Reports     → David Akindele
+  ⏳ Student Performance      → Raymond
+
+═══════════════════════════════════════════════════════════════════════════════════
