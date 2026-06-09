@@ -6,6 +6,7 @@ from students.student_dashboard import student_dashboard
 from students.student_management import student_management_page
 from students.csv_import import bulk_upload_students
 from admin.dashboard import render_admin_dashboard
+from attendance.attendance_management import attendance_page
 
 
 # Secure Connection Method Wrapper passed dynamically to modules
@@ -68,7 +69,7 @@ def main():
 
         # Route Selected Action Target Block
         if choice == "Student Dashboard":
-            student_dashboard(st.session_state['student_id'])  # Pass student_id for personalized data retrieval
+            student_dashboard(st.session_state['student_id']) 
         elif choice == "Manage Users":
             render_user_management(get_db_connection)
         elif choice == "Student Management":
@@ -77,7 +78,8 @@ def main():
             render_admin_dashboard(get_db_connection)
         elif choice == "Bulk Upload Students":
             bulk_upload_students()
-        # Remaining layout checks link cleanly into alternative developer modules...
+        elif choice == "Attendance Roster Sessions":
+            attendance_page()
 
 if __name__ == "__main__":
     main()
