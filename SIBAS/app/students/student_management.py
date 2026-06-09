@@ -53,6 +53,41 @@ def register_student():
             cursor.close()
             conn.close()
 
+def view_student_courses():
+    st.subheader("View Student Courses")
+
+    matric_no = st.text_input("Enter Student Matric Number")
+
+    if st.button("View Courses"):
+        conn = get_connection()
+
+        try:
+            query = """
+                SELECT 
+                    s.matric_no,
+                    s.full_name,
+                    c.course_code,
+                    c.course_title
+                FROM students s
+                JOIN student_enrolled se
+                    ON s.student_id = se.student_id
+                JOIN courses c
+                    ON se.course_id = c.course_id
+                WHERE s.matric_no = %s
+            """
+
+            df = pd.read_sql(query, conn, params=(matric_no,))
+
+            if df.empty:
+                st.info("No courses found for this student.")
+            else:
+                st.dataframe(df)
+
+        except Exception as e:
+            st.error(f"Error loading student courses: {e}")
+
+        finally:
+            conn.close()
 
 def view_all_students():
     st.subheader("All Registered Students")
@@ -259,7 +294,8 @@ def student_management_page():
             "View All Students",
             "Search Student",
             "Update Student",
-            "Assign Course"
+            "Assign Course",
+            "View Student Courses"
         ]
     )
 
@@ -277,3 +313,6 @@ def student_management_page():
 
     elif menu == "Assign Course":
         assign_student_to_course()
+
+    elif menu == "View Student Courses":
+        view_student_courses()
