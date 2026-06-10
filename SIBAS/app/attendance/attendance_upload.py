@@ -13,6 +13,8 @@ def upload_attendance_csv(session_id):
 
     st.subheader("Attendance Upload")
 
+    st.info("The uploaded CSV file should have the following colunms only: matric_no and status (Present or Absent)")
+
     uploaded_file = st.file_uploader(
         "Upload CSV",
         type=["csv"]
