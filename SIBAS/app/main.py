@@ -8,8 +8,6 @@ from students.csv_import import bulk_upload_students
 from admin.dashboard import render_admin_dashboard
 from attendance.attendance_management import attendance_page
 
-
-# Secure Connection Method Wrapper passed dynamically to modules
 def get_db_connection():
     try:
         return psycopg2.connect(
@@ -24,8 +22,6 @@ def get_db_connection():
         return None
 
 def main():
-    """Main application entry point with proper Streamlit initialization."""
-    # Instantiate default state variables safely
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
     if 'username' not in st.session_state:
@@ -39,35 +35,29 @@ def main():
     if 'full_name' not in st.session_state:
         st.session_state['full_name'] = None
 
-    # Application Routing Engine
     if not st.session_state['authenticated']:
         login_screen(get_db_connection)
     else:
-        # Sidebar Context Panel Layout
         st.sidebar.markdown(f"### Welcome, **{st.session_state['full_name']}**")
         st.sidebar.info(f"Designated Role: {st.session_state['role']}")
-        
-        # Conditional Navigation based on Role Capabilities (RBAC Engine)
+
         options = []
         
         if st.session_state['role'] == 'Administrator':
             options.append("Admin Dashboard") 
             options.append("Manage Users")
             options.append("Student Management")
-            options.append("System Audit Reports") 
             options.append("Bulk Upload Students")  
         elif st.session_state['role'] == 'Lecturer':
-            options.append("Attendance Roster Sessions")  # David Okenla's module
+            options.append("Attendance Roster Sessions")
         elif st.session_state['role'] == 'Student':
-            options.append("Student Dashboard")  # Raymond's Dashboard
+            options.append("Student Dashboard")
             
         choice = st.sidebar.radio("Navigation Panel Menu", options)
-        
-        # Instantiate Logout Trigger Option 
+
         if st.sidebar.button("Terminate Session (Sign Out)"):
             logout_user()
 
-        # Route Selected Action Target Block
         if choice == "Student Dashboard":
             student_dashboard(st.session_state['student_id']) 
         elif choice == "Manage Users":

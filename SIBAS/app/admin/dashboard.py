@@ -18,31 +18,23 @@ def render_admin_dashboard(get_connection_func):
             return
         
         cursor = conn.cursor()
-        
-        # ============================================================
-        # KEY METRICS - Row 1
-        # ============================================================
         col1, col2, col3, col4 = st.columns(4)
         
-        # Total Users
         with col1:
             cursor.execute("SELECT COUNT(*) FROM users;")
             total_users = cursor.fetchone()[0]
             st.metric("👥 Total Users", total_users, delta="Active")
-        
-        # Total Students
+
         with col2:
             cursor.execute("SELECT COUNT(*) FROM students;")
             total_students = cursor.fetchone()[0]
             st.metric("🎓 Total Students", total_students)
         
-        # Total Lecturers
         with col3:
             cursor.execute("SELECT COUNT(*) FROM lecturers;")
             total_lecturers = cursor.fetchone()[0]
             st.metric("👨‍🏫 Total Lecturers", total_lecturers)
-        
-        # Total Courses
+
         with col4:
             cursor.execute("SELECT COUNT(*) FROM courses;")
             total_courses = cursor.fetchone()[0]
@@ -50,12 +42,8 @@ def render_admin_dashboard(get_connection_func):
         
         st.markdown("---")
         
-        # ============================================================
-        # SYSTEM OVERVIEW - Row 2
-        # ============================================================
         col1, col2 = st.columns(2)
-        
-        # User Distribution by Role
+
         with col1:
             st.subheader("👥 User Distribution by Role")
             cursor.execute("""
@@ -72,8 +60,7 @@ def render_admin_dashboard(get_connection_func):
                 st.bar_chart(data=df_roles.set_index('Role'), height=300)
             else:
                 st.info("No user data available")
-        
-        # Student Distribution by Department
+
         with col2:
             st.subheader("🏢 Students by Department")
             cursor.execute("""
@@ -92,10 +79,7 @@ def render_admin_dashboard(get_connection_func):
                 st.info("No student data available")
         
         st.markdown("---")
-        
-        # ============================================================
-        # ATTENDANCE OVERVIEW - Row 3
-        # ============================================================
+
         st.subheader("📋 Attendance Summary")
         
         cursor.execute("""
@@ -127,12 +111,8 @@ def render_admin_dashboard(get_connection_func):
         
         st.markdown("---")
         
-        # ============================================================
-        # RECENT ACTIVITY - Row 4
-        # ============================================================
         col1, col2 = st.columns(2)
-        
-        # Active Lecturers (with courses)
+
         with col1:
             st.subheader("👨‍🏫 Lecturers & Their Courses")
             cursor.execute("""
@@ -156,8 +136,7 @@ def render_admin_dashboard(get_connection_func):
                 st.dataframe(df_lecturers, use_container_width=True, hide_index=True)
             else:
                 st.info("No lecturer data available")
-        
-        # Student Enrollment Stats
+
         with col2:
             st.subheader("📚 Course Enrollment")
             cursor.execute("""
@@ -184,26 +163,20 @@ def render_admin_dashboard(get_connection_func):
         
         st.markdown("---")
         
-        # ============================================================
-        # SYSTEM STATUS
-        # ============================================================
         st.subheader("⚙️ System Status")
         
         col1, col2, col3 = st.columns(3)
-        
-        # Active Users
+
         with col1:
             cursor.execute("SELECT COUNT(*) FROM users WHERE is_active = TRUE;")
             active_users = cursor.fetchone()[0]
             st.metric("✅ Active Users", active_users)
-        
-        # Inactive Users
+
         with col2:
             cursor.execute("SELECT COUNT(*) FROM users WHERE is_active = FALSE;")
             inactive_users = cursor.fetchone()[0]
             st.metric("❌ Inactive Users", inactive_users)
-        
-        # Last Updated
+
         with col3:
             st.metric("🕐 Dashboard Generated", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         

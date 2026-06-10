@@ -7,17 +7,69 @@ from db.connection import get_connection
 def register_student():
     st.subheader("Register New Student")
 
-    st.warning(
-        "Student registration requires a user_id from the Users table. "
-        "This will be fully connected after the authentication module is ready."
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            u.user_id,
+            u.username
+        FROM users u
+        JOIN roles r
+            ON u.role_id = r.role_id
+        LEFT JOIN students s
+            ON u.user_id = s.user_id
+        WHERE r.role_name = 'Student'
+        AND s.student_id IS NULL
+        ORDER BY u.username
+    """)
+
+    available_users = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    if not available_users:
+        st.warning(
+            "No unlinked Student user accounts available. "
+            "Create a Student user first."
+        )
+        return
+
+    user_map = {
+        f"{user[0]} - {user[1]}": user[0]
+        for user in available_users
+    }
+
+    selected_user = st.selectbox(
+        "Student User Account",
+        list(user_map.keys())
     )
 
-    user_id = st.number_input("User ID", min_value=1, step=1)
+    user_id = user_map[selected_user]
     matric_no = st.text_input("Matriculation Number")
     full_name = st.text_input("Full Name")
     email = st.text_input("Email")
-    department_id = st.number_input("Department ID", min_value=1, step=1)
-    course = st.text_input("Course of Study")
+    department_course_map = {
+        "Computer Science": (1, "Computer Science"),
+        "Fashion Design & Technology": (2, "Fashion Design & Technology"),
+        "Creative Arts": (3, "Creative Arts"),
+        "Environmental Science": (4, "Environmental Science"),
+        "Philosophy & Magic Studies": (5, "Philosophy & Magic Studies")
+    }
+
+    selected_department = st.selectbox(
+        "Department",
+        list(department_course_map.keys())
+    )
+
+    department_id, course = department_course_map[selected_department]
+
+    st.text_input(
+        "Course",
+        value=course,
+        disabled=True
+    )
     level = st.selectbox("Level", ["100", "200", "300", "400", "500"])
 
     if st.button("Register Student"):
@@ -41,9 +93,9 @@ def register_student():
             conn.commit()
             st.success("Student registered successfully.")
 
-        except psycopg2.errors.UniqueViolation:
+        except psycopg2.errors.UniqueViolation as e:
             conn.rollback()
-            st.error("A student with this matric number or email already exists.")
+            st.error(f"Unique constraint violated: {e}")
 
         except Exception as e:
             conn.rollback()
@@ -240,15 +292,43 @@ def assign_student_to_course():
     st.subheader("Assign Student to Course")
 
     matric_no = st.text_input("Enter Student Matric Number")
-    course_id = st.number_input("Course ID", min_value=1, step=1)
 
-    if st.button("Assign Course"):
-        conn = get_connection()
-        cursor = conn.cursor()
+    conn = get_connection()
+    cursor = conn.cursor()
 
-        try:
+    try:
+        cursor.execute("""
+            SELECT course_id, course_code, course_title
+            FROM courses
+            ORDER BY course_id
+        """)
+
+        courses = cursor.fetchall()
+
+        if not courses:
+            st.warning("No courses found.")
+            return
+
+        course_map = {
+            f"{c[0]} - {c[1]} ({c[2]})": c[0]
+            for c in courses
+        }
+
+        selected_course = st.selectbox(
+            "Select Course",
+            list(course_map.keys())
+        )
+
+        course_id = course_map[selected_course]
+
+        if st.button("Assign Course"):
+
             cursor.execute(
-                "SELECT student_id FROM students WHERE matric_no = %s",
+                """
+                SELECT student_id
+                FROM students
+                WHERE matric_no = %s
+                """,
                 (matric_no,)
             )
 
@@ -262,26 +342,32 @@ def assign_student_to_course():
 
             cursor.execute(
                 """
-                INSERT INTO student_enrolled (student_id, course_id)
+                INSERT INTO student_enrolled
+                (student_id, course_id)
                 VALUES (%s, %s)
                 """,
                 (student_id, course_id)
             )
 
             conn.commit()
-            st.success("Student assigned to course successfully.")
 
-        except psycopg2.errors.UniqueViolation:
-            conn.rollback()
-            st.warning("This student is already assigned to this course.")
+            st.success(
+                f"Student assigned to {selected_course} successfully."
+            )
 
-        except Exception as e:
-            conn.rollback()
-            st.error(f"Error: {e}")
+    except psycopg2.errors.UniqueViolation:
+        conn.rollback()
+        st.warning(
+            "This student is already assigned to this course."
+        )
 
-        finally:
-            cursor.close()
-            conn.close()
+    except Exception as e:
+        conn.rollback()
+        st.error(f"Error: {e}")
+
+    finally:
+        cursor.close()
+        conn.close()
 
 
 def student_management_page():

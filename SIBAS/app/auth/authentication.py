@@ -16,41 +16,44 @@ def login_user(connection, username, password):
     Uses parameterized statements to absolutely eliminate SQL injection risk.
     """
     cursor = connection.cursor()
-    # Explicitly pull user parameters alongside their assigned role name.
-    # Note: Column is u.password matching the SIBAS schema.
+
     query = """
-        SELECT u.user_id, u.username, u.password, r.role_name, u.is_active 
+        SELECT u.user_id, u.username, u.password, r.role_name, u.is_active
         FROM users u
         JOIN roles r ON u.role_id = r.role_id
         WHERE u.username = %s;
     """
+
     cursor.execute(query, (username,))
     user = cursor.fetchone()
     cursor.close()
 
     if user:
         user_id, uname, hashed_pw, role_name, is_active = user
-        
-        # BR17: Deactivated users shall not be allowed system entry
+
         if not is_active:
-            st.error("Authentication Failure: This user account has been deactivated.")
+            st.error(
+                "Authentication Failure: This user account has been deactivated."
+            )
             return False
-        
-        # Verify plain text entry against stored hash
+
         if verify_password(password, hashed_pw):
 
             st.session_state['authenticated'] = True
             st.session_state['user_id'] = user_id
             st.session_state['username'] = uname
             st.session_state['role'] = role_name
-            st.session_state['full_name'] = uname  # Placeholder for full name, can be extended to fetch from DB
+            st.session_state['student_id'] = None
+
+            st.session_state['full_name'] = uname
+
+            cursor = connection.cursor()
 
             if role_name == "Student":
-                cursor = connection.cursor()
 
                 cursor.execute(
                     """
-                    SELECT student_id
+                    SELECT student_id, full_name
                     FROM students
                     WHERE user_id = %s
                     """,
@@ -61,11 +64,44 @@ def login_user(connection, username, password):
 
                 if result:
                     st.session_state['student_id'] = result[0]
+                    st.session_state['full_name'] = result[1]
 
-                cursor.close()
+            elif role_name == "Lecturer":
+
+                cursor.execute(
+                    """
+                    SELECT full_name
+                    FROM lecturers
+                    WHERE user_id = %s
+                    """,
+                    (user_id,)
+                )
+
+                result = cursor.fetchone()
+
+                if result:
+                    st.session_state['full_name'] = result[0]
+
+            elif role_name == "Administrator":
+
+                cursor.execute(
+                    """
+                    SELECT full_name
+                    FROM administrators
+                    WHERE user_id = %s
+                    """,
+                    (user_id,)
+                )
+
+                result = cursor.fetchone()
+
+                if result:
+                    st.session_state['full_name'] = result[0]
+
+            cursor.close()
 
             return True
-            
+
     return False
 
 def logout_user():
@@ -81,8 +117,7 @@ def logout_user():
 def login_screen(get_connection_func):
     """Renders the front-facing Streamlit login card components."""
     st.markdown("<h2 style='text-align: center;'>SIBAS Login Portal</h2>", unsafe_allow_html=True)
-    
-    # Render interactive input boxes within a standard secure container form
+
     with st.form("sibas_login_form"):
         username = st.text_input("Username Input", placeholder="Enter username...")
         password = st.text_input("Password Input", type="password", placeholder="Enter password...")

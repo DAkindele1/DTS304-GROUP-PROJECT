@@ -59,9 +59,7 @@ def validate_student_csv(df):
 def bulk_upload_students():
     st.subheader("Bulk Upload Students")
 
-    st.warning(
-        "CSV upload currently requires user_id because Victoria's schema links students to users."
-    )
+    st.warning("The uploaded CSV file should have the following colunms only: user_id, matric_no, full_name, email, department_id, course, level")
 
     uploaded_file = st.file_uploader("Upload Students CSV", type=["csv"])
 

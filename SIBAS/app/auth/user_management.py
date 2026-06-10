@@ -2,7 +2,6 @@ import streamlit as st
 from auth.authentication import hash_password
 
 def fetch_available_roles(connection):
-    """Helper method to load database configuration configurations dynamically."""
     cursor = connection.cursor()
     cursor.execute("SELECT role_id, role_name FROM roles;")
     roles = cursor.fetchall()
@@ -10,56 +9,93 @@ def fetch_available_roles(connection):
     return roles
 
 def render_user_management(get_connection_func):
-    """
-    Renders administrative interface features to coordinate internal user states.
-    Guarantees RBAC enforcement by actively blocking non-Admin interactions.
-    """
-    # BR3 & FR8: Explicit validation constraint check prior to view creation
     if st.session_state.get('role') != 'Administrator':
         st.error("Unauthorized Action: Access to this console is strictly restricted to Administrators.")
         return
 
     st.title("🛡️ SIBAS Administration Console")
-    st.write("Perform administrative CRUD operations on user accounts safely.")
+    st.write("Perform administrative operations on user accounts safely.")
 
-    # Instantiate UI tab architecture partition maps
     tab_create, tab_update, tab_delete = st.tabs([
         "➕ Create User Account", 
         "🔄 Modify / Toggle Account", 
         "❌ Terminate Record Data"
     ])
 
-    # ----------------------------------------------------
-    # TAB FLOW 1: CREATE USER INTERACTION
-    # ----------------------------------------------------
     with tab_create:
         st.subheader("Register System User Profile")
+
+        conn = get_connection_func()
+        roles_data = []
+        if conn:
+            try:
+                roles_data = fetch_available_roles(conn)
+            finally:
+                conn.close()
+            
+        role_mapping = {r[1]: r[0] for r in roles_data}
+
+        selected_role = st.selectbox(
+            "Assign Authorization Role",
+            list(role_mapping.keys())
+        )
+
         with st.form("create_account_form"):
             new_username = st.text_input("Target Unique Username")
             new_password = st.text_input("Initial Access Password", type="password")
-            
-            # Fetch active roles from database layer safely
-            conn = get_connection_func()
-            roles_data = []
-            if conn:
-                try:
-                    roles_data = fetch_available_roles(conn)
-                finally:
-                    conn.close()
-            
-            role_mapping = {r[1]: r[0] for r in roles_data}
-            selected_role = st.selectbox("Assign Authorization Role", list(role_mapping.keys()))
+
+            full_name = ""
+            email = None
+            department_id = None
+
+            if selected_role == "Lecturer":
+
+                full_name = st.text_input("Full Name")
+                email = st.text_input("Email")
+
+                departments = {
+                    "1 - Computer Science": 1,
+                    "2 - Fashion Design & Technology": 2,
+                    "3 - Creative Arts": 3,
+                    "4 - Environmental Science": 4,
+                    "5 - Philosophy & Magic Studies": 5
+                }
+
+                selected_department = st.selectbox(
+                    "Department",
+                    list(departments.keys())
+                )
+
+                department_id = departments[selected_department]
+
+            elif selected_role == "Administrator":
+                full_name = st.text_input("Full Name")
+
             submit_creation = st.form_submit_button("Commit User Creation")
             
             if submit_creation:
                 if not new_username.strip() or not new_password.strip():
-                    st.error("Processing Error: Input configurations cannot contain empty entries.")
+                    st.error(
+                        "Processing Error: Input configurations cannot contain empty entries."
+                    )
+
+                elif selected_role == "Lecturer" and (
+                    not full_name.strip()
+                    or not email.strip()
+                ):
+                    st.error(
+                        "Full Name and Email are required for lecturers."
+                    )
+
+                elif selected_role == "Administrator" and not full_name.strip():
+                    st.error(
+                        "Full Name is required for administrators."
+                    )
                 else:
                     conn = get_connection_func()
                     if conn:
                         try:
                             cursor = conn.cursor()
-                            # Check to verify uniqueness constraint prior to handling execution
                             cursor.execute("SELECT username FROM users WHERE username = %s", (new_username.strip(),))
                             if cursor.fetchone():
                                 st.error(f"Conflict Error: The user handle '{new_username}' is already claimed.")
@@ -67,13 +103,62 @@ def render_user_management(get_connection_func):
                                 encrypted_hash = hash_password(new_password)
                                 target_role_id = role_mapping[selected_role]
                                 
-                                # Safe Parameterized Data Record Insertion targeting the 'password' column
                                 cursor.execute(
-                                    "INSERT INTO users (username, password, role_id, is_active) VALUES (%s, %s, %s, TRUE);",
-                                    (new_username.strip(), encrypted_hash, target_role_id)
+                                    """
+                                    INSERT INTO users
+                                    (
+                                        username,
+                                        password,
+                                        role_id,
+                                        is_active
+                                    )
+                                    VALUES (%s, %s, %s, TRUE)
+                                    RETURNING user_id
+                                    """,
+                                    (
+                                        new_username.strip(),
+                                        encrypted_hash,
+                                        target_role_id
+                                    )
                                 )
+
+                                user_id = cursor.fetchone()[0]
+                                if selected_role == "Lecturer":
+                                    cursor.execute(
+                                        """
+                                        INSERT INTO lecturers
+                                        (
+                                            user_id,
+                                            full_name,
+                                            email,
+                                            department_id
+                                        )
+                                        VALUES (%s, %s, %s, %s)
+                                        """,
+                                        (
+                                            user_id,
+                                            full_name.strip(),
+                                            email.strip(),
+                                            department_id
+                                        )
+                                    )
+                                elif selected_role == "Administrator":
+                                    cursor.execute(
+                                        """
+                                        INSERT INTO administrators
+                                        (
+                                            user_id,
+                                            full_name
+                                        )
+                                        VALUES (%s, %s)
+                                        """,
+                                        (
+                                            user_id,
+                                            full_name.strip()
+                                        )
+                                    )
                                 conn.commit()
-                                st.success(f"Success: Record context for user profile '{new_username}' compiled safely!")
+                                st.success(f"Success: User profile '{new_username}' created!")
                         except Exception as e:
                             conn.rollback()
                             st.error(f"Transaction aborted: An exception occurred at database engine: {e}")
@@ -81,9 +166,6 @@ def render_user_management(get_connection_func):
                             cursor.close()
                             conn.close()
 
-    # ----------------------------------------------------
-    # TAB FLOW 2: UPDATE / DEACTIVATE USER INTERACTION
-    # ----------------------------------------------------
     with tab_update:
         st.subheader("Modify Properties and Active Privileges")
         conn = get_connection_func()
@@ -129,7 +211,6 @@ def render_user_management(get_connection_func):
                             
                             if updated_password.strip():
                                 rehashed_pw = hash_password(updated_password)
-                                # Targeting the 'password' column 
                                 update_query = """
                                     UPDATE users 
                                     SET username = %s, password = %s, role_id = %s, is_active = %s 
@@ -156,12 +237,9 @@ def render_user_management(get_connection_func):
         else:
             st.info("No system profiles detected in backend storage.")
 
-    # ----------------------------------------------------
-    # TAB FLOW 3: PERMANENT USER DELETION
-    # ----------------------------------------------------
     with tab_delete:
         st.subheader("Execute Account Deletion")
-        st.warning("⚠️ Critical Notice: Deletion drops the core profile record immediately. Verify related dependencies.")
+        st.warning("Warning: Understand that deletion drops the core profile record immediately. This action is irreversible")
         
         if registered_users:
             deletion_mapping = {f"{u[1]} ({u[2]})": u[0] for u in registered_users}

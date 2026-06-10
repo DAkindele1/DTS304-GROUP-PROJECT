@@ -106,6 +106,7 @@ CREATE TABLE attendance_sessions (
     lecturer_id  INT       NOT NULL REFERENCES lecturers(lecturer_id),
     session_date DATE      NOT NULL,
     session_time TIME,                     
+    status       VARCHAR(20) NOT NULL CHECK (status IN ('Open', 'Closed')) DEFAULT 'Open',
     created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
  
