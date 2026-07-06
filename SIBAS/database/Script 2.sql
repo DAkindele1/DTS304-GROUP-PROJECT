@@ -181,7 +181,7 @@ INSERT INTO student_enrolled (student_id, course_id) VALUES
     (12, 6),                   
     (13, 7),                   
     (14, 5), (14, 3),          
-    (15, 1), (15, 2), (15, 3); -
+    (15, 1), (15, 2), (15, 3);
 
 INSERT INTO student_enrolled (student_id, course_id) VALUES
     (16, 7), (16, 8),         
