@@ -1,5 +1,6 @@
 # Streamlit secrets (local only)
 .streamlit/secrets.toml
+SIBAS/.streamlit/secrets.toml
 
 # Python
 __pycache__/

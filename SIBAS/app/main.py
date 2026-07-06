@@ -1,5 +1,4 @@
 import streamlit as st
-import psycopg2
 from auth.authentication import login_screen, logout_user
 from auth.user_management import render_user_management
 from students.student_dashboard import student_dashboard
@@ -7,19 +6,7 @@ from students.student_management import student_management_page
 from students.csv_import import bulk_upload_students
 from admin.dashboard import render_admin_dashboard
 from attendance.attendance_management import attendance_page
-
-def get_db_connection():
-    try:
-        return psycopg2.connect(
-            dbname=st.secrets["DB_NAME"],
-            user=st.secrets["DB_USER"],
-            password=st.secrets["DB_PASSWORD"],
-            host=st.secrets["DB_HOST"],
-            port=st.secrets["DB_PORT"]
-        )
-    except Exception as e:
-        st.error(f"Database Connection Failure: {e}")
-        return None
+from db.connection import get_connection as get_db_connection
 
 def main():
     if 'authenticated' not in st.session_state:
