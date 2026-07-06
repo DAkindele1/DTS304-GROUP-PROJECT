@@ -34,7 +34,7 @@ CREATE TABLE departments (
 
 CREATE TABLE administrators (
     administrator_id SERIAL       PRIMARY KEY,
-    user_id          INT          NOT NULL UNIQUE REFERENCES users(user_id),
+    user_id          INT          NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
     full_name        VARCHAR(200) NOT NULL
 );
  
@@ -44,7 +44,7 @@ CREATE TABLE administrators (
 
 CREATE TABLE students (
     student_id    SERIAL        PRIMARY KEY,
-    user_id       INT           NOT NULL UNIQUE REFERENCES users(user_id),
+    user_id       INT           NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
     department_id INT           NOT NULL REFERENCES departments(department_id),
     matric_no     VARCHAR(20)   NOT NULL UNIQUE,
     full_name     VARCHAR(200)  NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE students (
 
 CREATE TABLE lecturers (
     lecturer_id   SERIAL        PRIMARY KEY,
-    user_id       INT           NOT NULL UNIQUE REFERENCES users(user_id),
+    user_id       INT           NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
     department_id INT           NOT NULL REFERENCES departments(department_id),
     full_name     VARCHAR(200)  NOT NULL,
     email         VARCHAR(100)  NOT NULL UNIQUE

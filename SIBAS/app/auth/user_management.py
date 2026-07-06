@@ -257,7 +257,7 @@ def render_user_management(get_connection_func):
                     if conn:
                         try:
                             cursor = conn.cursor()
-                            cursor.execute("DELETE CASCADE FROM users WHERE user_id = %s;", (target_del_id,))
+                            cursor.execute("DELETE FROM users WHERE user_id = %s;", (target_del_id,))
                             conn.commit()
                             st.success("Target profile purged successfully from data tables.")
                             st.rerun()
