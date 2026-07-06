@@ -231,9 +231,6 @@ def view_all_students():
     st.subheader("All Registered Students")
 
     try:
-        # =========================
-        # Department Filter
-        # =========================
         dept_query = """
         SELECT department_id, department_name
         FROM departments
@@ -249,9 +246,6 @@ def view_all_students():
             dept_options
         )
 
-        # =========================
-        # Course Filter
-        # =========================
         course_query = """
         SELECT course_id, course_code, course_title
         FROM courses
@@ -270,9 +264,6 @@ def view_all_students():
             course_options
         )
 
-        # =========================
-        # Student Query
-        # =========================
         query = """
         SELECT
             s.student_id,
@@ -320,9 +311,6 @@ def view_all_students():
 
         st.dataframe(df, use_container_width=True)
 
-        # =========================
-        # Select Student
-        # =========================
         student_names = [
             f"{row['matric_no']} - {row['full_name']}"
             for _, row in df.iterrows()
@@ -358,9 +346,6 @@ def view_all_students():
             f"**Level:** {selected_row.iloc[0]['level']}"
         )
 
-        # =========================
-        # Attendance Report
-        # =========================
         attendance_query = """
         SELECT
             c.course_code,
@@ -432,9 +417,6 @@ def view_all_students():
         st.subheader("Attendance Report")
         st.dataframe(attendance_df, use_container_width=True)
 
-        # =========================
-        # CSV Export
-        # =========================
         csv = attendance_df.to_csv(index=False)
 
         st.download_button(

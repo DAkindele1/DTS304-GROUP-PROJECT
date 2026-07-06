@@ -11,11 +11,11 @@ from attendance.attendance_management import attendance_page
 def get_db_connection():
     try:
         return psycopg2.connect(
-            dbname="sibas_db",
-            user="postgres",
-            password="incorrect6307",
-            host="localhost",
-            port="5433"
+            dbname=st.secrets["DB_NAME"],
+            user=st.secrets["DB_USER"],
+            password=st.secrets["DB_PASSWORD"],
+            host=st.secrets["DB_HOST"],
+            port=st.secrets["DB_PORT"]
         )
     except Exception as e:
         st.error(f"Database Connection Failure: {e}")
